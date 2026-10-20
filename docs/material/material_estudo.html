@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Material de estudo — Miniprojeto de IA (MARLlib)</title>
+<style>
+@page { size: A4; margin: 18mm 18mm 20mm 18mm;
+  @bottom-center { content: counter(page); font: 9pt sans-serif; color: #888; } }
+* { box-sizing: border-box; }
+body { font-family: "Segoe UI", Arial, sans-serif; font-size: 11.5pt; line-height: 1.55; color: #1d232b; margin: 0; }
+h1 { font-size: 22pt; color: #123c69; margin: 0 0 6pt; line-height: 1.2; }
+h2, h3 { break-after: avoid; }
+h2 { font-size: 14.5pt; color: #123c69; margin: 16pt 0 6pt; border-bottom: 1.5px solid #cfd9e6; padding-bottom: 3pt; }
+h3 { font-size: 12pt; color: #1f5a96; margin: 12pt 0 4pt; }
+p { margin: 0 0 7pt; }
+ul, ol { margin: 0 0 8pt; padding-left: 18pt; }
+li { margin-bottom: 3pt; }
+.section { break-before: page; }
+.kicker { font-size: 9.5pt; letter-spacing: .08em; text-transform: uppercase; color: #6a7b90; font-weight: 600; margin-bottom: 2pt; }
+.box { border: 1px solid #cfd9e6; background: #f4f7fb; border-radius: 6px; padding: 8pt 11pt; margin: 8pt 0 10pt; break-inside: avoid; }
+.box.key { background: #eaf4ea; border-color: #b7d8b7; }
+.box.warn { background: #fff6e5; border-color: #f0d199; }
+.box .t { font-weight: 700; margin-bottom: 3pt; display: block; }
+table { border-collapse: collapse; width: 100%; margin: 6pt 0 10pt; font-size: 10.5pt; break-inside: avoid; }
+th, td { border: 1px solid #cfd9e6; padding: 4pt 6pt; text-align: left; vertical-align: top; }
+th { background: #e6edf6; }
+td.n { text-align: right; white-space: nowrap; }
+.flow { display: flex; align-items: center; gap: 6pt; margin: 8pt 0 10pt; flex-wrap: wrap; break-inside: avoid; }
+.flow .s { border: 1.5px solid #1f5a96; border-radius: 6px; padding: 5pt 8pt; background: #fff; font-size: 10.5pt; text-align: center; }
+.flow .a { color: #1f5a96; font-weight: 700; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8pt; margin: 6pt 0 10pt; break-inside: avoid; }
+.grid3 > div { border: 1px solid #cfd9e6; border-radius: 6px; padding: 7pt 9pt; background: #fafcfe; font-size: 10.5pt; }
+.grid3 b { color: #123c69; }
+.cover { height: 235mm; display: flex; flex-direction: column; justify-content: center; }
+.cover h1 { font-size: 28pt; }
+.cover .sub { font-size: 14pt; color: #4a5a6e; margin-bottom: 18pt; }
+.cover .meta { font-size: 11pt; color: #4a5a6e; border-left: 3px solid #1f5a96; padding-left: 10pt; }
+img { max-width: 100%; }
+.small { font-size: 9.5pt; color: #5a6878; }
+.qa p.q { font-weight: 700; margin-bottom: 1pt; color: #123c69; }
+.qa p.r { margin-bottom: 8pt; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div class="kicker">Inteligência Artificial · UNICAP · 2026.2</div>
+  <h1>Miniprojeto: aprendizado por reforço com vários agentes usando a MARLlib</h1>
+  <div class="sub">Material de estudo para a equipe — do zero à apresentação</div>
+  <div class="meta">
+    <b>Artigo base:</b> Hu, S. et al. <i>MARLlib: A Scalable and Efficient Library for Multi-agent Reinforcement Learning.</i>
+    Journal of Machine Learning Research, v. 24, n. 315, p. 1–23, 2023.<br>
+    <b>Código:</b> github.com/Replicable-MARL/MARLlib<br><br>
+    <b>Em uma frase:</b> rodamos o que o artigo fez, comparamos nossos números com os dele
+    e mostramos que dá para treinar ~42% mais rápido sem perder desempenho.
+  </div>
+</div>
+
+<!-- ================= 0 ================= -->
+<div class="section">
+<div class="kicker">Antes de começar</div>
+<h1>Como usar este material</h1>
+<p>Este documento foi escrito para quem nunca leu o artigo nem mexeu no projeto. Leia na ordem: cada parte usa o que veio antes.</p>
+<table>
+<tr><th>Parte</th><th>O que você vai entender</th></tr>
+<tr><td>1. Conceitos básicos</td><td>O que é aprendizado por reforço, o que muda quando há vários agentes, e os termos que vão aparecer.</td></tr>
+<tr><td>2. O artigo</td><td>Qual problema ele resolve, o que propõe, como valida e quais resultados obteve.</td></tr>
+<tr><td>3. Aplicações no mundo real</td><td>Onde esse tipo de técnica é usado fora da sala de aula.</td></tr>
+<tr><td>4. O que nós fizemos</td><td>A reprodução do artigo: ambiente, algoritmos, configuração e resultados.</td></tr>
+<tr><td>5. A nossa modificação</td><td>O que mudamos, como, por que funciona e o que muda no mundo real.</td></tr>
+<tr><td>6. Itens do enunciado</td><td>Respostas prontas para cada pergunta do roteiro do professor.</td></tr>
+<tr><td>7. Perguntas prováveis</td><td>O que o professor pode perguntar e como responder.</td></tr>
+<tr><td>8. Glossário</td><td>Termos técnicos em uma linha.</td></tr>
+</table>
+<div class="box key"><span class="t">A ideia do projeto em 3 passos (dica do professor)</span>
+<ol style="margin:0">
+<li><b>Executar o que está no artigo</b> — treinamos os algoritmos IPPO e MAPPO no ambiente <i>simple_spread</i>, como o artigo.</li>
+<li><b>Comparar</b> nossos resultados com a Tabela 4 do artigo.</li>
+<li><b>Propor uma mudança</b> — trocamos a forma como os agentes usam a rede neural (uma rede para todos × uma por agente) e medimos o efeito no desempenho e no tempo de treino.</li>
+</ol></div>
+</div>
+
+<!-- ================= 1 ================= -->
+<div class="section">
+<div class="kicker">Parte 1</div>
+<h1>Conceitos básicos</h1>
+
+<h2>1.1 Aprendizado por reforço (RL)</h2>
+<p>É um jeito de ensinar um programa por <b>tentativa e erro</b>. Ninguém diz ao programa a resposta certa; ele tenta algo, recebe uma nota e vai ajustando o comportamento para conseguir notas melhores.</p>
+<p><b>Analogia:</b> adestrar um cachorro. Ele faz algo, ganha petisco (recompensa) ou não. Com o tempo ele repete o que dá petisco.</p>
+<div class="flow">
+  <div class="s"><b>Agente</b><br>observa a situação</div><span class="a">→</span>
+  <div class="s"><b>Ação</b><br>escolhe o que fazer</div><span class="a">→</span>
+  <div class="s"><b>Ambiente</b><br>o mundo muda</div><span class="a">→</span>
+  <div class="s"><b>Recompensa</b><br>nota da ação</div><span class="a">↺</span>
+  <div class="s">repete milhares de vezes</div>
+</div>
+<ul>
+<li><b>Agente:</b> quem aprende e age (um robô, um personagem de jogo).</li>
+<li><b>Ambiente:</b> o "mundo" onde o agente está (uma simulação).</li>
+<li><b>Observação:</b> o que o agente enxerga naquele momento.</li>
+<li><b>Ação:</b> o que ele faz (ex.: mover para cima, baixo, esquerda, direita ou ficar parado).</li>
+<li><b>Recompensa:</b> número que diz se aquilo foi bom ou ruim.</li>
+<li><b>Episódio:</b> uma "partida" do começo ao fim. No nosso caso, 25 passos.</li>
+<li><b>Política:</b> a "cabeça" do agente — a regra que transforma observação em ação. Aqui ela é uma <b>rede neural</b>.</li>
+</ul>
+<div class="box"><span class="t">Diferença para o aprendizado supervisionado</span>
+No supervisionado (ex.: classificar fotos de gatos) existe um conjunto de dados com as respostas certas, separado em treino e teste. No RL <b>não existe base de dados pronta</b>: os dados são gerados enquanto o agente joga. Por isso vários itens do enunciado (SMOTE, aumento de dados, validação cruzada) não se aplicam — ver Parte 6.</div>
+
+<h2>1.2 Vários agentes ao mesmo tempo (MARL)</h2>
+<p><b>MARL</b> = <i>Multi-Agent Reinforcement Learning</i>, aprendizado por reforço multiagente. Vários agentes aprendem juntos no mesmo ambiente. Eles podem:</p>
+<ul>
+<li><b>cooperar</b> (time de robôs num armazém — é o nosso caso),</li>
+<li><b>competir</b> (dois times num jogo), ou</li>
+<li><b>misto</b> (cooperam dentro do time e competem contra outro time).</li>
+</ul>
+<p><b>O que fica difícil:</b> enquanto um agente aprende, os outros também estão mudando. Para cada agente, o "mundo" fica instável, porque o comportamento dos colegas muda o tempo todo. Além disso, cada agente geralmente só enxerga uma parte do mundo (observação parcial).</p>
+
+<h2>1.3 PPO, o algoritmo de base</h2>
+<p><b>PPO</b> (<i>Proximal Policy Optimization</i>) é um dos algoritmos de RL mais usados. Ele tem duas partes:</p>
+<ul>
+<li><b>Ator</b> — a rede que decide a ação.</li>
+<li><b>Crítico</b> — a rede que estima "quão boa é esta situação". Serve para o ator saber se uma ação foi melhor ou pior que o esperado.</li>
+</ul>
+<p>O detalhe do PPO é que ele <b>muda a política aos poucos</b> (o "clipping" limita o tamanho de cada atualização). Isso deixa o treino estável.</p>
+
+<h2>1.4 Treino centralizado, execução descentralizada (CTDE)</h2>
+<p>Ideia central de muitos algoritmos multiagente: <b>durante o treino</b> pode-se usar informação de todos os agentes (como um técnico que vê o campo inteiro); <b>na hora de agir</b>, cada agente usa só o que ele mesmo enxerga (como o jogador em campo). Assim o treino fica mais bem informado, mas o sistema final continua funcionando sem comunicação central.</p>
+</div>
+
+<!-- ================= 2 ================= -->
+<div class="section">
+<div class="kicker">Parte 2</div>
+<h1>O artigo: MARLlib</h1>
+<table>
+<tr><th style="width:28%">Título</th><td>MARLlib: A Scalable and Efficient Library for Multi-agent Reinforcement Learning</td></tr>
+<tr><th>Autores</th><td>Siyi Hu, Yifan Zhong, Minquan Gao, Weixun Wang, Hao Dong, Zhihui Li, Xiaodan Liang, Xiaojun Chang, Yaodong Yang</td></tr>
+<tr><th>Instituições</th><td>University of Technology Sydney, Peking University, NetEase, MBZUAI, entre outras</td></tr>
+<tr><th>Periódico / ano</th><td>Journal of Machine Learning Research (JMLR), v. 24, n. 315, 2023 (publicado em agosto/2023)</td></tr>
+<tr><th>Tipo de artigo</th><td><b>Artigo de software</b>: não inventa um algoritmo novo; apresenta uma biblioteca (ferramenta) e mostra que ela funciona bem.</td></tr>
+</table>
+
+<h2>2.1 O problema</h2>
+<p>Quem pesquisa MARL enfrentava dois obstáculos:</p>
+<ol>
+<li><b>Cada ambiente fala uma "língua" diferente.</b> Um devolve a recompensa do time como um número só; outro dá uma recompensa para cada agente. Um fornece o estado global do mundo; outro não. Um identifica cada agente pelo nome; outro não. Para cada ambiente novo era preciso reescrever o código.</li>
+<li><b>Algoritmos e ambientes não combinam entre si.</b> Alguns algoritmos só funcionam em tarefas cooperativas; outros exigem o estado global. As bibliotecas da época (PyMARL, EPyMARL, MAPPO benchmark) cobriam poucos ambientes, quase sempre só cooperativos.</li>
+</ol>
+<div class="box"><span class="t">Analogia</span>Antes, cada aparelho tinha um carregador próprio. A MARLlib é como um padrão de tomada universal: qualquer ambiente se conecta a qualquer algoritmo.</div>
+
+<h2>2.2 A proposta: três mecanismos</h2>
+<h3>① Adaptador padronizado de ambiente (<i>environment wrapper</i>)</h3>
+<p>Converte qualquer ambiente para o mesmo formato, em três passos: (1) coloca informações extras, como o estado global, dentro da observação; (2) copia a recompensa para cada agente, para todos terem a mesma estrutura; (3) etiqueta todos os dados com o identificador do agente.</p>
+
+<h3>② Fluxo de dados no nível do agente (<i>agent-level dataflow</i>)</h3>
+<p>Cada agente guarda os próprios dados e treina a si mesmo. Quando um algoritmo precisa de informação dos colegas, ela é trocada numa etapa intermediária (pós-processamento), antes do treino. Com isso, as três grandes famílias de algoritmos cabem no mesmo código:</p>
+<div class="grid3">
+<div><b>Aprendizado independente (IL)</b><br>Cada agente aprende sozinho e trata os outros como parte do ambiente.<br><i>Ex.: IPPO, IQL.</i></div>
+<div><b>Crítico centralizado (CC)</b><br>No treino, o crítico vê todos os agentes; na execução, cada um usa só a própria visão (CTDE).<br><i>Ex.: MAPPO, MADDPG.</i></div>
+<div><b>Decomposição de valor (VD)</b><br>Aprende um valor para o time e divide entre os agentes.<br><i>Ex.: QMIX, VDN, VDPPO.</i></div>
+</div>
+
+<h3>③ Estratégia de mapeamento de políticas (<i>policy mapping</i>)</h3>
+<p>Define <b>quais agentes usam a mesma rede neural</b>. Três opções prontas:</p>
+<ul>
+<li><b>Compartilhamento total</b> (<i>full-sharing</i>): todos os agentes usam uma única rede.</li>
+<li><b>Por grupo</b> (<i>group-sharing</i>): uma rede por time (ex.: uma para atacantes, outra para defensores).</li>
+<li><b>Sem compartilhamento</b> (<i>non-sharing</i>): cada agente tem sua rede.</li>
+</ul>
+<p>A biblioteca ainda <b>verifica automaticamente</b> se a combinação escolhida é válida — por exemplo, impede usar um algoritmo só cooperativo num jogo competitivo.</p>
+<div class="box key"><span class="t">Guarde isto</span>O mecanismo ③ é o que a nossa modificação testa. O artigo oferece as opções de compartilhamento, mas <b>não mede</b> qual delas é melhor.</div>
+
+<h2>2.3 Como o artigo valida a biblioteca</h2>
+<ul>
+<li><b>Velocidade (Apêndice C):</b> treina o MAPPO num mapa do StarCraft (SMAC, mapa MMM2) por 1 milhão de passos, numa GPU RTX A6000. A MARLlib terminou em 1min24s–3min29s, contra 2min24s–5min29s das concorrentes. Em troca, usou mais memória.</li>
+<li><b>Qualidade (Apêndice J):</b> roda 17 algoritmos em 23 tarefas de 5 ambientes (SMAC, MPE, Google Football, MAMuJoCo, MAgent), com 4 sementes aleatórias cada — mais de mil experimentos. No SMAC compara com a biblioteca EPyMARL: igual em 63% dos casos, melhor em 25%, um pouco pior em 12%.</li>
+</ul>
+<p>Os números que usamos como referência vêm da Tabela 4 do artigo, para o ambiente MPE <i>simple_spread</i>:</p>
+<table>
+<tr><th>Algoritmo</th><th>Família</th><th>Recompensa no artigo</th></tr>
+<tr><td>IPPO</td><td>Independente</td><td class="n">−65,74</td></tr>
+<tr><td>MAPPO</td><td>Crítico centralizado</td><td class="n">−66,26</td></tr>
+<tr><td>IQL / VDN / QMIX / VDPPO</td><td>Independente / decomposição</td><td class="n">−197,6 / −190,5 / −189,3 / −214,0</td></tr>
+</table>
+<p class="small">Quanto mais perto de zero, melhor. IPPO e MAPPO estão entre os melhores nesse cenário.</p>
+
+<h2>2.4 Conclusão do artigo</h2>
+<p>A MARLlib unifica ambientes e algoritmos num só lugar, é mais rápida que as alternativas e serve como plataforma de ensino e pesquisa. Como trabalho futuro, os autores citam <b>escalabilidade e eficiência</b>, explicabilidade e robustez (Apêndice K).</p>
+</div>
+
+<!-- ================= 3 ================= -->
+<div class="section">
+<div class="kicker">Parte 3</div>
+<h1>Aplicações no mundo real</h1>
+<p>Sempre que há <b>várias máquinas ou programas tomando decisões ao mesmo tempo</b> e precisando se coordenar, MARL é candidato. Uma biblioteca como a MARLlib acelera a pesquisa nessas áreas porque permite testar muitos algoritmos sem reescrever código.</p>
+<table>
+<tr><th style="width:24%">Área</th><th>Quem são os agentes</th><th>O que eles aprendem</th></tr>
+<tr><td><b>Armazéns e logística</b></td><td>Robôs que buscam prateleiras (ex.: ambiente RWARE, suportado pela MARLlib)</td><td>Dividir pedidos e evitar congestionamento nos corredores</td></tr>
+<tr><td><b>Drones e enxames</b></td><td>Cada drone</td><td>Cobrir uma área de busca e resgate sem colidir — é literalmente o que o <i>simple_spread</i> simula</td></tr>
+<tr><td><b>Trânsito</b></td><td>Cada semáforo ou cada carro autônomo (ex.: MetaDrive, suportado)</td><td>Reduzir filas coordenando os cruzamentos</td></tr>
+<tr><td><b>Energia elétrica</b></td><td>Inversores de painéis solares numa rede de distribuição (ex.: MAPDN, suportado)</td><td>Manter a tensão estável juntos</td></tr>
+<tr><td><b>Jogos</b></td><td>Personagens controlados por IA (StarCraft — SMAC; futebol — Google Football)</td><td>Táticas de equipe; o AlphaStar da DeepMind chegou a nível de grão-mestre no StarCraft II</td></tr>
+<tr><td><b>Indústria, finanças, saúde</b></td><td>Máquinas de uma linha de produção, robôs de negociação, sistemas de apoio</td><td>Citados pelo próprio artigo como direção futura (Apêndice K)</td></tr>
+</table>
+<div class="box"><span class="t">O cenário do nosso projeto, traduzido</span>No <i>simple_spread</i>, 3 agentes precisam se espalhar para cobrir 3 pontos sem bater uns nos outros. Pense em <b>3 drones que precisam se posicionar sobre 3 locais</b> de uma área de resgate, ou <b>3 robôs que precisam ocupar 3 estações</b> de trabalho. É um problema simples de cobertura e coordenação.</div>
+</div>
+
+<!-- ================= 4 ================= -->
+<div class="section">
+<div class="kicker">Parte 4</div>
+<h1>O que nós fizemos: a reprodução</h1>
+
+<h2>4.1 O ambiente: MPE <i>simple_spread</i></h2>
+<ul>
+<li><b>MPE</b> (<i>Multi-agent Particle Environment</i>): um mundo 2D simples, com "partículas" (os agentes) e pontos de referência (marcos).</li>
+<li><b>3 agentes e 3 marcos.</b> O time precisa cobrir todos os marcos.</li>
+<li><b>Observação</b> de cada agente: sua posição e velocidade, e a posição relativa dos marcos e dos colegas.</li>
+<li><b>Ações:</b> 5 opções (parado, cima, baixo, esquerda, direita).</li>
+<li><b>Recompensa do time:</b> negativa — soma das distâncias de cada marco ao agente mais próximo, com penalidade por colisão. <b>Quanto mais perto de zero, melhor.</b> O valor reportado é a soma ao longo dos 25 passos do episódio.</li>
+</ul>
+
+<h2>4.2 Os algoritmos e por que eles</h2>
+<p>Escolhemos <b>IPPO</b> e <b>MAPPO</b>:</p>
+<ul>
+<li><b>Cada um representa um lado da ideia central do artigo:</b> IPPO é aprendizado independente; MAPPO é crítico centralizado.</li>
+<li><b>Comparação limpa:</b> os dois são PPO com os mesmos hiperparâmetros. A única diferença é que o crítico do MAPPO enxerga todos os agentes.</li>
+<li><b>São os melhores nesse cenário segundo o próprio artigo</b> (−65,74 e −66,26), então temos um número claro para comparar.</li>
+<li><b>Rodam em CPU comum.</b> Algoritmos como QMIX precisam de muito mais passos e, no artigo, foram muito piores nesse cenário.</li>
+</ul>
+
+<h2>4.3 Como foi executado</h2>
+<table>
+<tr><th style="width:32%">Item</th><th>Valor</th></tr>
+<tr><td>Ferramentas</td><td>MARLlib (código oficial do artigo), Ray/RLlib 1.8, PyTorch 1.9, Python 3.8, Windows, só CPU</td></tr>
+<tr><td>Rede neural</td><td>MLP (rede densa) com camadas de 128 e 256 neurônios</td></tr>
+<tr><td>Hiperparâmetros</td><td>Os ajustados que a própria MARLlib fornece para o MPE: taxa de aprendizado 0,0005; clipping 0,3; bônus de entropia 0,01; 10 passadas por lote; lote de 128 episódios</td></tr>
+<tr><td>Duração do treino</td><td>500 mil passos por execução (≈ 20 mil episódios)</td></tr>
+<tr><td>Repetições</td><td>3 sementes aleatórias por configuração (o artigo usa 4)</td></tr>
+<tr><td>Medida final</td><td>Média da recompensa nos últimos 10% do treino, depois média ± desvio padrão entre as 3 sementes</td></tr>
+<tr><td>Total</td><td>12 execuções (2 algoritmos × 2 formas de compartilhamento × 3 sementes), ~4h30 de computador</td></tr>
+</table>
+<p>O código cabe em quatro linhas de API da MARLlib:</p>
+<div class="box" style="font-family:Consolas,monospace;font-size:9.5pt;line-height:1.45">
+env = marl.make_env(environment_name="mpe", map_name="simple_spread", force_coop=True)<br>
+algo = marl.algos.mappo(hyperparam_source="mpe")<br>
+model = marl.build_model(env, algo, {"core_arch": "mlp", "encode_layer": "128-256"})<br>
+algo.fit(env, model, stop={"timesteps_total": 500000}, share_policy="all", seed=0)
+</div>
+
+<h2>4.4 Resultado da reprodução</h2>
+<table>
+<tr><th>Algoritmo</th><th>Nosso resultado (rede compartilhada)</th><th>Artigo</th></tr>
+<tr><td>IPPO</td><td class="n">−96,4 ± 0,6</td><td class="n">−65,74</td></tr>
+<tr><td>MAPPO</td><td class="n">−97,2 ± 0,8</td><td class="n">−66,26</td></tr>
+</table>
+<ul>
+<li><b>O que confirmamos:</b> IPPO e MAPPO empatam, como no artigo. Ou seja, nesse cenário simples, o crítico centralizado não traz vantagem.</li>
+<li><b>O que não bateu:</b> nossos valores ficaram ~30 pontos abaixo dos do artigo.</li>
+<li><b>Possíveis causas:</b> o artigo não diz quantos passos de treino usou no MPE (o padrão da MARLlib é 2 milhões; nós usamos 500 mil), e também não detalha a configuração exata do ambiente. Testamos a primeira hipótese com um treino 4× mais longo (seção 4.5): ajuda, mas não fecha a diferença.</li>
+</ul>
+
+<h2 id="longo">4.5 Teste extra: treino 4× mais longo</h2>
+<p>Para testar se a diferença era falta de treino, rodamos o IPPO (rede compartilhada, semente 0) por <b>2 milhões de passos</b> — o padrão da MARLlib, 4× o nosso orçamento. Levou 66 min.</p>
+<table>
+<tr><th>Ponto do treino</th><th>Recompensa (média da janela)</th></tr>
+<tr><td>500 mil passos</td><td class="n">−96,7</td></tr>
+<tr><td>1 milhão</td><td class="n">−95,3</td></tr>
+<tr><td>1,5 milhão</td><td class="n">−92,6</td></tr>
+<tr><td>2 milhões (últimos 10% do treino)</td><td class="n"><b>−87,5</b></td></tr>
+<tr><td>Artigo</td><td class="n">−65,74</td></tr>
+</table>
+<img src="curva_2M.png" alt="Curva do treino de 2 milhões de passos" style="width:85%;display:block;margin:4pt auto 6pt">
+<ul>
+<li><b>Treinar mais ajuda:</b> a recompensa continuou melhorando devagar e a distância para o artigo caiu de ~30 para ~22 pontos.</li>
+<li><b>Mas não explica tudo:</b> mesmo com o orçamento padrão de 2 milhões ainda ficamos abaixo do artigo. O resto da diferença deve vir de detalhes que o artigo não publica (configuração exata do ambiente, número de passos real, forma de medir a recompensa).</li>
+<li><b>Não muda a conclusão da modificação:</b> as duas formas de compartilhamento foram comparadas com o mesmo orçamento, então a comparação entre elas é justa.</li>
+<li><b>Limite:</b> é uma única semente, então serve como indicação, não como resultado estatístico.</li>
+</ul>
+
+<div class="box warn"><span class="t">Como falar disso na apresentação</span>Não é um erro nosso: é um <b>achado sobre reprodutibilidade</b>. Usamos o código oficial e os hiperparâmetros oficiais e mesmo assim não chegamos ao número publicado. Isso acontece com frequência em RL e mostra que o artigo deveria informar a configuração completa de cada experimento.</div>
+</div>
+
+<!-- ================= 5 ================= -->
+<div class="section">
+<div class="kicker">Parte 5</div>
+<h1>A nossa modificação</h1>
+
+<h2>5.1 O que mudamos</h2>
+<p>Testamos a <b>estratégia de compartilhamento de rede</b> — o mecanismo ③ do artigo:</p>
+<div class="grid3" style="grid-template-columns:1fr 1fr">
+<div><b>Rede compartilhada</b> (padrão do artigo)<br>Os 3 agentes usam <b>a mesma rede neural</b>. Cada um recebe a sua própria observação, então eles ainda agem de forma diferente — mas o "cérebro" é um só.</div>
+<div><b>Uma rede por agente</b> (variação)<br>Cada agente tem <b>sua própria rede</b>, treinada só com a experiência dele. São 3 cérebros independentes.</div>
+</div>
+<p><b>Pergunta:</b> dá para treinar mais rápido sem perder desempenho? Agentes iguais precisam de cérebros separados?</p>
+
+<h2>5.2 Por que essa modificação é válida (justificativa para o professor)</h2>
+<ul>
+<li>O compartilhamento é <b>uma das três contribuições centrais</b> do artigo (Seção 2), mas o artigo <b>nunca mede o efeito dele</b>: no benchmark (Apêndice J) cada tarefa roda só com o padrão.</li>
+<li>O artigo diz que desliga o compartilhamento em tarefas com muitos agentes "para economizar memória" (Apêndice H.2), <b>sem quantificar</b>. Nós medimos o custo.</li>
+<li>Conversa com a alegação de <b>eficiência</b> do artigo (Apêndice C) e com o trabalho futuro que ele mesmo propõe: <b>escalabilidade e eficiência</b> (Apêndice K).</li>
+</ul>
+
+<h2>5.3 Como fizemos</h2>
+<p>Mudando <b>um único parâmetro</b> da MARLlib: <code>share_policy="all"</code> (rede compartilhada) ou <code>share_policy="individual"</code> (uma rede por agente). Todo o resto ficou idêntico: mesmo ambiente, mesmos hiperparâmetros, mesma rede, mesmos 500 mil passos, mesmas 3 sementes. Assim, qualquer diferença vem só do compartilhamento. Medimos a recompensa final e o tempo de treino.</p>
+
+<h2>5.4 Resultados</h2>
+<table>
+<tr><th>Algoritmo</th><th>Rede</th><th>Recompensa final</th><th>Tempo por execução</th></tr>
+<tr><td>IPPO</td><td>compartilhada</td><td class="n"><b>−96,4 ± 0,6</b></td><td class="n"><b>17,0 min</b></td></tr>
+<tr><td>IPPO</td><td>uma por agente</td><td class="n">−97,4 ± 2,1</td><td class="n">28,7 min</td></tr>
+<tr><td>MAPPO</td><td>compartilhada</td><td class="n"><b>−97,2 ± 0,8</b></td><td class="n"><b>17,8 min</b></td></tr>
+<tr><td>MAPPO</td><td>uma por agente</td><td class="n">−98,7 ± 1,5</td><td class="n">30,5 min</td></tr>
+</table>
+<img src="curvas.png" alt="Curvas de aprendizado" style="width:88%;display:block;margin:4pt auto 6pt">
+<p class="small" style="text-align:center">Curvas de aprendizado (média ± desvio entre 3 sementes). Eixo x: passos de treino. Eixo y: recompensa por episódio.</p>
+<div class="box key"><span class="t">Conclusão da modificação</span>
+<ul style="margin:0">
+<li>Com a rede compartilhada, o treino ficou <b>~42% mais rápido</b> (17 contra 30 min).</li>
+<li>O desempenho ficou <b>igual ou um pouco melhor</b> (a diferença é pequena, da ordem de 1 a 1,5 ponto).</li>
+<li>Os resultados variaram <b>menos entre sementes</b> (desvio 0,6–0,8 contra 1,5–2,1): o treino é mais previsível.</li>
+<li>As curvas mostram que quase todo o aprendizado acontece nos primeiros ~100 mil passos; depois a melhora é lenta.</li>
+</ul></div>
+
+<h2>5.5 Por que funciona</h2>
+<ol>
+<li><b>Menos trabalho por atualização.</b> Com uma rede só, o computador atualiza 1 rede por rodada. Com redes separadas, precisa atualizar 3 redes, cada uma com suas 10 passadas sobre os dados. O total de experiência é o mesmo, mas o custo de processamento quase dobra.</li>
+<li><b>Cada rede aprende com 3× mais experiência.</b> A rede compartilhada recebe as jogadas dos 3 agentes; uma rede individual só vê as do seu agente. Mais exemplos por rede significa aprendizado mais estável — por isso o desvio entre sementes caiu.</li>
+<li><b>Os agentes são iguais.</b> No <i>simple_spread</i> os 3 agentes têm o mesmo papel, as mesmas ações e o mesmo objetivo. Não há nada que exija um "cérebro" diferente para cada um. O comportamento diferente vem das observações diferentes (cada um vê o mundo da sua posição).</li>
+</ol>
+<div class="box"><span class="t">Analogia</span>Três motoristas de entrega que fazem o mesmo trabalho podem seguir o <b>mesmo manual</b>, e cada um aplica o manual onde está. Escrever um manual separado para cada motorista dá três vezes mais trabalho e cada manual fica baseado em menos experiência.</div>
+
+<h2>5.6 O que muda nas aplicações do mundo real</h2>
+<ul>
+<li><b>Treino mais barato:</b> 42% menos tempo de computador significa menos custo de nuvem/GPU e mais experimentos no mesmo prazo.</li>
+<li><b>Escala para muitos agentes:</b> com rede compartilhada, uma frota de 100 drones ou robôs iguais continua com <b>uma</b> rede, em vez de 100. Memória e tempo deixam de crescer com o número de agentes.</li>
+<li><b>Agentes novos entram prontos:</b> um robô que chega ao armazém já usa a rede treinada, sem treinar do zero.</li>
+<li><b>Quando NÃO usar:</b> se os agentes tiverem papéis diferentes (ex.: drone de câmera e drone de carga, atacante e goleiro), uma rede só pode não servir. Aí o mais indicado é o compartilhamento <b>por grupo</b> (uma rede por tipo de agente), opção que a MARLlib também oferece.</li>
+</ul>
+<div class="box warn"><span class="t">Limites (diga antes que perguntem)</span>Testamos um único cenário, com agentes iguais, 3 sementes e em CPU. Em tarefas com agentes diferentes o resultado pode ser outro. O ganho de tempo é medido no nosso computador; o valor exato muda com o hardware, mas a tendência (1 rede é mais barata que 3) não.</div>
+</div>
+
+<!-- ================= 6 ================= -->
+<div class="section">
+<div class="kicker">Parte 6</div>
+<h1>Itens do enunciado — respostas prontas</h1>
+<table>
+<tr><th style="width:30%">Item</th><th>Resposta</th></tr>
+<tr><td>Artigo</td><td>MARLlib, Hu et al., Journal of Machine Learning Research, v. 24, 2023 (dentro de 2022–2026).</td></tr>
+<tr><td>Base de dados</td><td>Não há base fixa: os dados são gerados pela interação dos agentes com o ambiente MPE <i>simple_spread</i> (3 agentes, 3 marcos, 25 passos por episódio, 5 ações).</td></tr>
+<tr><td>Tamanho da população</td><td>Não se aplica (não é inteligência de enxame). São 3 agentes.</td></tr>
+<tr><td>% treino / teste</td><td>Não se aplica no formato supervisionado. A avaliação usa a recompensa nos episódios dos últimos 10% do treino.</td></tr>
+<tr><td>Validação cruzada</td><td>Não. No lugar, repetimos cada configuração com 3 sementes aleatórias e reportamos média ± desvio.</td></tr>
+<tr><td>Algoritmos</td><td>IPPO (independente) e MAPPO (crítico centralizado), ambos baseados em PPO.</td></tr>
+<tr><td>Hiperparâmetros</td><td>Os ajustados que a MARLlib fornece para o MPE. Sem busca em grade, para manter a comparação com o artigo.</td></tr>
+<tr><td>Transfer learning</td><td>Não.</td></tr>
+<tr><td>Regularização / dropout</td><td>Bônus de entropia (0,01) e clipping do PPO (0,3). Sem dropout.</td></tr>
+<tr><td>Aumento de dados</td><td>Não se aplica.</td></tr>
+<tr><td>Desbalanceamento (SMOTE etc.)</td><td>Não se aplica (não é um problema de classificação).</td></tr>
+<tr><td>Figuras de mérito</td><td>Recompensa média por episódio, curva de aprendizado, desvio entre sementes e tempo de treino.</td></tr>
+<tr><td>Implementação e fontes</td><td>Código oficial da MARLlib (GitHub + documentação), Ray/RLlib, PyTorch; scripts próprios para rodar e analisar.</td></tr>
+<tr><td>Modificação (2,0 pts)</td><td>Avaliação da estratégia de compartilhamento de rede (compartilhada × uma por agente), não medida no artigo: ~42% menos tempo sem perda de desempenho.</td></tr>
+</table>
+</div>
+
+<!-- ================= 7 ================= -->
+<div class="section qa">
+<div class="kicker">Parte 7</div>
+<h1>Perguntas prováveis e como responder</h1>
+
+<p class="q">Por que o resultado de vocês é pior que o do artigo?</p>
+<p class="r">Usamos o código e os hiperparâmetros oficiais. O artigo não informa quantos passos usou no MPE nem todos os detalhes do ambiente. Com um treino 4× mais longo (2 milhões de passos, o padrão da biblioteca) a diferença caiu de ~30 para ~22 pontos (seção 4.5): parte é falta de treino, o resto vem de detalhes não publicados. A diferença aparece nas duas configurações igualmente, então não afeta a comparação da nossa modificação.</p>
+
+<p class="q">Por que não usaram validação cruzada ou divisão treino/teste?</p>
+<p class="r">Porque em aprendizado por reforço não existe uma base de dados fixa para dividir. O equivalente é repetir o experimento com sementes aleatórias diferentes, que é o que o artigo também faz (4 sementes; nós usamos 3).</p>
+
+<p class="q">Se os 3 agentes usam a mesma rede, por que não fazem todos a mesma coisa?</p>
+<p class="r">Porque cada um recebe uma observação diferente — a posição dele e o que está ao redor dele. A mesma regra aplicada em lugares diferentes gera ações diferentes.</p>
+
+<p class="q">Por que IPPO e MAPPO deram praticamente o mesmo resultado?</p>
+<p class="r">O artigo também mostra isso (−65,7 contra −66,3). No <i>simple_spread</i> cada agente já enxerga os colegas e os marcos, então o crítico centralizado do MAPPO tem pouca informação extra a acrescentar.</p>
+
+<p class="q">Por que só esse ambiente e esses algoritmos?</p>
+<p class="r">É o cenário cooperativo clássico, usado pelo artigo e roda sem instalações pesadas. Os outros (StarCraft, MuJoCo, Football) exigem Linux, GPU ou softwares externos. IPPO e MAPPO são os melhores nele, segundo o artigo, e formam uma comparação limpa entre duas famílias.</p>
+
+<p class="q">A diferença de recompensa entre compartilhada e individual é significativa?</p>
+<p class="r">É pequena (1 a 1,5 ponto), da ordem do desvio. A conclusão que defendemos é "<b>não perde</b> desempenho", não "ganha muito". O ganho claro é no tempo (~42%) e na estabilidade (menor desvio).</p>
+
+<p class="q">Por que o treino com redes individuais é mais lento se a quantidade de dados é a mesma?</p>
+<p class="r">Porque são 3 redes para atualizar em vez de 1, cada uma com suas próprias passadas de otimização. O custo de processamento cresce com o número de redes.</p>
+
+<p class="q">Isso funcionaria com agentes diferentes?</p>
+<p class="r">Provavelmente não tão bem. Nesse caso o indicado é compartilhar por grupo (uma rede por tipo de agente). Testar isso seria um bom trabalho futuro.</p>
+
+<p class="q">O que é uma semente aleatória?</p>
+<p class="r">Um número que define os sorteios do treino (pesos iniciais da rede, posições iniciais no ambiente). Sementes diferentes geram treinos diferentes; repetir com várias mostra se o resultado é consistente ou foi sorte.</p>
+
+<p class="q">O que significa uma recompensa de −96?</p>
+<p class="r">É a soma das penalidades ao longo dos 25 passos de um episódio: distância dos marcos ao agente mais próximo mais colisões. Zero seria perfeito (todos os marcos cobertos desde o primeiro passo, sem colisões), o que é impossível porque os agentes começam longe.</p>
+</div>
+
+<!-- ================= 8 ================= -->
+<div class="section">
+<div class="kicker">Parte 8</div>
+<h1>Glossário</h1>
+<table>
+<tr><th style="width:28%">Termo</th><th>Em uma linha</th></tr>
+<tr><td>Agente</td><td>Quem observa, age e aprende.</td></tr>
+<tr><td>Ambiente</td><td>A simulação onde os agentes agem.</td></tr>
+<tr><td>Recompensa</td><td>Nota numérica que indica se a ação foi boa.</td></tr>
+<tr><td>Episódio</td><td>Uma partida completa (25 passos no nosso caso).</td></tr>
+<tr><td>Passo (timestep)</td><td>Um instante em que cada agente escolhe uma ação.</td></tr>
+<tr><td>Política</td><td>A regra (rede neural) que escolhe a ação a partir da observação.</td></tr>
+<tr><td>Ator / crítico</td><td>Rede que decide / rede que avalia a situação.</td></tr>
+<tr><td>PPO</td><td>Algoritmo de RL que melhora a política em passos pequenos e seguros.</td></tr>
+<tr><td>IPPO</td><td>PPO em que cada agente aprende de forma independente.</td></tr>
+<tr><td>MAPPO</td><td>PPO com crítico centralizado, que vê todos os agentes no treino.</td></tr>
+<tr><td>CTDE</td><td>Treino com informação de todos, execução com informação local.</td></tr>
+<tr><td>MARL</td><td>Aprendizado por reforço com vários agentes.</td></tr>
+<tr><td>MPE</td><td>Ambiente 2D simples de partículas, muito usado em MARL.</td></tr>
+<tr><td>Compartilhamento de política</td><td>Vários agentes usando a mesma rede neural.</td></tr>
+<tr><td>Semente (seed)</td><td>Número que fixa os sorteios de um treino.</td></tr>
+<tr><td>Hiperparâmetro</td><td>Configuração escolhida antes do treino (ex.: taxa de aprendizado).</td></tr>
+<tr><td>Ray / RLlib</td><td>Bibliotecas de computação distribuída e de RL sobre as quais a MARLlib é construída.</td></tr>
+</table>
+
+</div>
+
+</body>
+</html>

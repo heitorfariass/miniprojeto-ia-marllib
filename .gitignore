@@ -1,0 +1,19 @@
+# Ambientes virtuais e cache
+.venv/
+__pycache__/
+*.pyc
+
+# Saídas brutas do Ray Tune (pesadas). Ficam no git só os resumos e as curvas compactas.
+results/*/
+!results/curvas_dados/
+!results/longo/
+results/longo/*/
+!results/benchmark/
+results/benchmark/*/
+results/logs/
+results/smoke_test.log
+
+# Rascunho interno da equipe
+docs/plano.md
+docs/material/build.sh
+results/longo/*.log

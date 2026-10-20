@@ -1,0 +1,18 @@
+21:09 ippo_all_s0 exit=0 17 min
+21:28 mappo_all_s0 exit=0 18 min
+21:46 ippo_all_s1 exit=0 18 min
+22:04 mappo_all_s1 exit=0 18 min
+22:21 ippo_all_s2 exit=0 16 min
+22:39 mappo_all_s2 exit=0 17 min
+23:08 ippo_individual_s0 exit=0 29 min
+23:39 mappo_individual_s0 exit=0 31 min
+00:08 ippo_individual_s1 exit=0 29 min
+00:39 mappo_individual_s1 exit=0 30 min
+01:08 ippo_individual_s2 exit=0 29 min
+01:39 mappo_individual_s2 exit=0 30 min
+ algo      share  seeds  recompensa_media  desvio  tempo_min   passos  artigo
+ ippo        all      3            -96.42    0.62      16.99 502400.0  -65.74
+ ippo individual      3            -97.35    2.10      28.70 502400.0     NaN
+mappo        all      3            -97.20    0.76      17.77 502400.0  -66.26
+mappo individual      3            -98.71    1.49      30.51 502400.0     NaN
+gráfico: C:\Users\heito\OneDrive\Documents\Faculdade\5-periodo\InteligenciaArtificial\results\curvas.png
