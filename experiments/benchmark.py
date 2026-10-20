@@ -52,7 +52,25 @@ def ram_gb():
         import psutil
         return round(psutil.virtual_memory().total / 2**30, 1)
     except Exception:
-        return "?"
+        pass
+    try:
+        if platform.system() == "Windows":
+            b = subprocess.check_output(["powershell", "-NoProfile", "-Command",
+                                         "(Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory"], text=True)
+            return round(int(b.strip()) / 2**30, 1)
+        for line in open("/proc/meminfo"):
+            if line.startswith("MemTotal"):
+                return round(int(line.split()[1]) / 2**20, 1)
+    except Exception:
+        pass
+    return "?"
+
+
+def os_name():
+    if platform.system() == "Windows":
+        build = int(platform.version().split(".")[-1])
+        return f"Windows {'11' if build >= 22000 else '10'} (build {build})"
+    return f"{platform.system()} {platform.release()}"
 
 
 rows = []
@@ -84,7 +102,7 @@ Data: {datetime.datetime.now():%d/%m/%Y %H:%M}
 
 | Máquina | |
 |---|---|
-| Sistema | {platform.system()} {platform.release()} |
+| Sistema | {os_name()} |
 | CPU | {cpu_name()} |
 | Núcleos lógicos | {os.cpu_count()} |
 | RAM | {ram_gb()} GB |
