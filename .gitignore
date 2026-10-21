@@ -17,3 +17,5 @@ results/smoke_test.log
 docs/plano.md
 docs/material/build.sh
 results/longo/*.log
+!results/video/
+results/video/frames/

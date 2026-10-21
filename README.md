@@ -35,6 +35,8 @@ Ambiente MPE `simple_spread` (3 agentes cobrindo 3 marcos), 500 mil passos por e
 | Intel i5-9400F, 6 núcleos, Windows 11 (referência) | 3,49 min | 5,81 min | 40% |
 | AMD Ryzen 3 3300X, 8 núcleos lógicos, Windows 10 ([pedro.md](results/benchmark/pedro.md)) | 3,97 min | 5,94 min | 33% |
 
+**Vídeo:** [results/video/agentes_treinando.mp4](results/video/agentes_treinando.mp4) (32 s) mostra, lado a lado e com a mesma situação inicial, os agentes sem treino, após 160 mil passos e após 2 milhões de passos. Gerado com `python experiments/make_video.py` (precisa do `ffmpeg` no PATH ou na variável `FFMPEG`, e do treino de 2 milhões em `results/longo/`).
+
 Dados: [results/resumo.md](results/resumo.md), [results/resumo_por_execucao.csv](results/resumo_por_execucao.csv) e curvas por execução em [results/curvas_dados/](results/curvas_dados/).
 
 ## Estrutura
@@ -47,7 +49,8 @@ Dados: [results/resumo.md](results/resumo.md), [results/resumo_por_execucao.csv]
 │   ├── benchmark.py    teste de tempo em outro hardware (~10 min)
 │   ├── run.py          uma execução: --algo ippo|mappo|vdppo --share all|individual --seed N --steps N
 │   ├── run_all.sh      as 12 execuções do projeto (~4h30)
-│   └── analyze.py      gera tabela, gráfico e curvas compactas
+│   ├── analyze.py      gera tabela, gráfico e curvas compactas
+│   └── make_video.py   vídeo dos agentes antes/durante/depois do treino
 ├── results/            resumos, gráficos, curvas e benchmarks
 ├── docs/               enunciado, artigo e material de estudo
 ├── setup.ps1           instalação no Windows
