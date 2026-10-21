@@ -317,6 +317,7 @@ algo.fit(env, model, stop={"timesteps_total": 500000}, share_policy="all", seed=
 <ul style="margin:0">
 <li>Com a rede compartilhada, o treino ficou <b>~42% mais rápido</b> (17 contra 30 min).</li>
 <li>O desempenho ficou <b>igual ou um pouco melhor</b> (a diferença é pequena, da ordem de 1 a 1,5 ponto).</li>
+<li><b>O ganho se repete em outro computador:</b> num teste curto (100 mil passos), foi de 40% no PC de referência (Intel i5-9400F) e de 33% num segundo PC (AMD Ryzen 3 3300X).</li>
 <li>Os resultados variaram <b>menos entre sementes</b> (desvio 0,6–0,8 contra 1,5–2,1): o treino é mais previsível.</li>
 <li>As curvas mostram que quase todo o aprendizado acontece nos primeiros ~100 mil passos; depois a melhora é lenta.</li>
 </ul></div>
@@ -336,7 +337,7 @@ algo.fit(env, model, stop={"timesteps_total": 500000}, share_policy="all", seed=
 <li><b>Agentes novos entram prontos:</b> um robô que chega ao armazém já usa a rede treinada, sem treinar do zero.</li>
 <li><b>Quando NÃO usar:</b> se os agentes tiverem papéis diferentes (ex.: drone de câmera e drone de carga, atacante e goleiro), uma rede só pode não servir. Aí o mais indicado é o compartilhamento <b>por grupo</b> (uma rede por tipo de agente), opção que a MARLlib também oferece.</li>
 </ul>
-<div class="box warn"><span class="t">Limites (diga antes que perguntem)</span>Testamos um único cenário, com agentes iguais, 3 sementes e em CPU. Em tarefas com agentes diferentes o resultado pode ser outro. O ganho de tempo é medido no nosso computador; o valor exato muda com o hardware, mas a tendência (1 rede é mais barata que 3) não.</div>
+<div class="box warn"><span class="t">Limites (diga antes que perguntem)</span>Testamos um único cenário, com agentes iguais, 3 sementes e em CPU. Em tarefas com agentes diferentes o resultado pode ser outro. O valor exato do ganho muda com o hardware (40% num PC, 33% no outro), mas a tendência — 1 rede é mais barata que 3 — se manteve nos dois.</div>
 </div>
 
 <!-- ================= 6 ================= -->
@@ -358,7 +359,7 @@ algo.fit(env, model, stop={"timesteps_total": 500000}, share_policy="all", seed=
 <tr><td>Desbalanceamento (SMOTE etc.)</td><td>Não se aplica (não é um problema de classificação).</td></tr>
 <tr><td>Figuras de mérito</td><td>Recompensa média por episódio, curva de aprendizado, desvio entre sementes e tempo de treino.</td></tr>
 <tr><td>Implementação e fontes</td><td>Código oficial da MARLlib (GitHub + documentação), Ray/RLlib, PyTorch; scripts próprios para rodar e analisar.</td></tr>
-<tr><td>Modificação (2,0 pts)</td><td>Avaliação da estratégia de compartilhamento de rede (compartilhada × uma por agente), não medida no artigo: ~42% menos tempo sem perda de desempenho.</td></tr>
+<tr><td>Modificação (2,0 pts)</td><td>Avaliação da estratégia de compartilhamento de rede (compartilhada × uma por agente), não medida no artigo: ~42% menos tempo sem perda de desempenho; ganho confirmado em um segundo computador (33%).</td></tr>
 </table>
 </div>
 

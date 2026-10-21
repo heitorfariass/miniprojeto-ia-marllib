@@ -28,6 +28,12 @@ Ambiente MPE `simple_spread` (3 agentes cobrindo 3 marcos), 500 mil passos por e
 
 - **Reprodução:** IPPO e MAPPO empatam, como no artigo, mas ficam ~30 pontos abaixo dele. Com 2 milhões de passos (IPPO, 1 semente) chegamos a −87,5: treinar mais reduz a diferença, mas não a elimina ([curva](results/longo/curva_2M.png)).
 - **Modificação:** rede compartilhada = ~42% menos tempo, recompensa igual ou levemente melhor e menor variação entre sementes.
+- **Outro hardware:** o ganho de tempo se repete em outra máquina (benchmark de 100 mil passos, IPPO):
+
+| Máquina | Compartilhada | Uma por agente | Ganho |
+|---|---|---|---|
+| Intel i5-9400F, 6 núcleos, Windows 11 (referência) | 3,49 min | 5,81 min | 40% |
+| AMD Ryzen 3 3300X, 8 núcleos lógicos, Windows 10 ([pedro.md](results/benchmark/pedro.md)) | 3,97 min | 5,94 min | 33% |
 
 Dados: [results/resumo.md](results/resumo.md), [results/resumo_por_execucao.csv](results/resumo_por_execucao.csv) e curvas por execução em [results/curvas_dados/](results/curvas_dados/).
 
